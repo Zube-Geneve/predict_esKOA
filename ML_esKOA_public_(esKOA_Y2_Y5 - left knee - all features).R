@@ -51,36 +51,36 @@ columns <- c("study",
              "smoking_packyr_baseline", "ethnicity", "marst_baseline", "living_status_baseline", "employ_baseline",
              "edu_baseline",       
              # Medicalhistory.Comorbidities #
-             "heart_failure_baseline", "heart_attack_baseline", "stroke_baseline", "asthma_baseline", "COPD_baseline",            
+             "heart_failure_baseline", "heart_attack_baseline", "stroke_baseline", "asthma_baseline", "COPD_baseline",             #        "                     #
              "ulcer_baseline", "diabetes_baseline", "kidney_baseline", 
              # Medicalhistory.Arthritis-specific #
-             "arthritis_pmh_baseline", "injury_right_baseline", "freq_pain_right_baseline", "limit_activity_baseline",
+             "arthritis_pmh_baseline", "injury_left_baseline", "freq_pain_left_baseline", "limit_activity_baseline",
              # Medicalhistory.Scoring systems.Mental #
              "cesd_baseline", "sf12_mental_baseline",
              # Medicalhistory.Scoring systems.Physical #
-             "sf12_physical_baseline", "womactot_right_baseline", "pasev_baseline",
+             "sf12_physical_baseline", "womactot_left_baseline", "pasev_baseline",
              # Medicalhistory.Clinical examination #
              "w20m_timet1_baseline", "cstime1_baseline", 
              # Osteoarthritis severity.Imaging Assessments #
-             "KLGRIGHT_baseline", 
-             "JSLRIGHT_baseline", "JSMRIGHT_baseline",
+             "KLGLEFT_baseline", 
+             "JSLLEFT_baseline", "JSMLEFT_baseline",
              # History of intervention.Medication #
-             "osteop_med_baseline", "analgesics_baseline", "arth_med_baseline", "steroid_inj_right_baseline",
+             "osteop_med_baseline", "analgesics_baseline", "arth_med_baseline", "steroid_inj_left_baseline",
              # History of intervention.Knee-related surgical intervention #
-             "knee_arth_right_baseline", "knee_men_right_baseline", "knee_ligament_right_baseline", 
-             "knee_other_surg_right_baseline",
-             
-             #LEFT KNEE variables
-             "injury_left_baseline", "freq_pain_left_baseline", 
-             "womactot_left_baseline", 
-             "KLGLEFT_baseline", "JSLLEFT_baseline", "JSMLEFT_baseline",  
-             "steroid_inj_left_baseline",
              "knee_arth_left_baseline", "knee_men_left_baseline", "knee_ligament_left_baseline", 
              "knee_other_surg_left_baseline",
              
+             #LEFT KNEE variables
+             "injury_right_baseline", "freq_pain_right_baseline", 
+             "womactot_right_baseline", 
+             "KLGRIGHT_baseline", "JSLRIGHT_baseline", "JSMRIGHT_baseline",  
+             "steroid_inj_right_baseline",
+             "knee_arth_right_baseline", "knee_men_right_baseline", "knee_ligament_right_baseline", 
+             "knee_other_surg_right_baseline",
+             
              # Outcomes #
-             "knee_esKOA_new_y2_right",
-             "knee_esKOA_new_y5_right"
+             "knee_esKOA_new_y2_left",
+             "knee_esKOA_new_y5_left"
 )
 
 # Select the features using the column names
@@ -128,7 +128,7 @@ print(final_study_counts)
 
 #Correlations
 
-# code snippet that converts the character variables to factors first and then to numeric values, because direct numeric conversion does not work 
+# code snippet that converts the character variables to factors first and then to numeric values, because direct num conversion does not work 
 # as i converts them as NA
 combinedDF_sub_num <- combinedDF_sub %>%
   mutate_if(is.character, ~ as.factor(ifelse(.x == "NA", NA, .x))) %>%
@@ -170,7 +170,7 @@ r <- cor(combinedDF_sub_num[,3:42])
 {plot.new(); dev.off()}
 
 # Specify the file name and start the PNG graphics device
-png("correlation_plot_right.png", width=800, height=800)
+png("correlation_plot_left.png", width=800, height=800)
 
 # Create the correlation plot (heatmap)
 corrplot(
@@ -226,7 +226,6 @@ if (nrow(cor_df) == 0) {
 
 ######## BEGIN EXCLUDING DUMMY TRANSFORMATION
 
-
 # Check for variables with no variation
 no_variation_vars <- c()
 for (col in names(combinedDF_sub_num)) {
@@ -264,7 +263,7 @@ nearZeroVar(combinedDF_sub_num, saveMetrics = T)
 outcomeName <- c('knee_esKOA')
 
 
-outcomeNames <- c('knee_esKOA_new_y2_right', 'knee_esKOA_new_y5_right')
+outcomeNames <- c('knee_esKOA_new_y2_left', 'knee_esKOA_new_y5_left')
 
 
 predictorsNames <- names(combinedDF_sub_num)[!(names(combinedDF_sub_num) %in% outcomeNames) & names(combinedDF_sub_num) != "study"]
@@ -276,15 +275,15 @@ predictorsNames <- names(combinedDF_sub_num)[!(names(combinedDF_sub_num) %in% ou
 #
 #################################################
 #
-#We use OAI as validation and internal test datasets, and MOST as external test dataset
+#We will use OAI as validation and internal test datasets, and MOST as external test dataset
 
 set.seed(5701)
 
 
 # Create a new column to represent the combined outcome of interest
 combinedDF_sub_num$knee_esKOA_combined <- ifelse(
-    combinedDF_sub_num$knee_esKOA_new_y2_right == 1 |
-    combinedDF_sub_num$knee_esKOA_new_y5_right == 1, 1, 0
+    combinedDF_sub_num$knee_esKOA_new_y2_left == 1 |
+    combinedDF_sub_num$knee_esKOA_new_y5_left == 1, 1, 0
 )
 
 
@@ -370,24 +369,24 @@ for (var in continuous_vars) {
 
 
 # Percentage and number of outcome Y2 in training dataset
-train_OAI_outcome_percent_y2 <- prop.table(table(train_OAI_DF$knee_esKOA_new_y2_right)) * 100
-print(table(train_OAI_DF$knee_esKOA_new_y2_right))
+train_OAI_outcome_percent_y2 <- prop.table(table(train_OAI_DF$knee_esKOA_new_y2_left)) * 100
+print(table(train_OAI_DF$knee_esKOA_new_y2_left))
 print(train_OAI_outcome_percent_y2)
 
 # Percentage and number of outcome Y2 in internal test dataset
-test_OAI_outcome_percent_y2 <- prop.table(table(test_OAI_DF$knee_esKOA_new_y2_right)) * 100
-print(table(test_OAI_DF$knee_esKOA_new_y2_right))
+test_OAI_outcome_percent_y2 <- prop.table(table(test_OAI_DF$knee_esKOA_new_y2_left)) * 100
+print(table(test_OAI_DF$knee_esKOA_new_y2_left))
 print(test_OAI_outcome_percent_y2)
 
 
 # Percentage and number of outcome Y5 in training dataset
-train_OAI_outcome_percent_y5 <- prop.table(table(train_OAI_DF$knee_esKOA_new_y5_right)) * 100
-print(table(train_OAI_DF$knee_esKOA_new_y5_right))
+train_OAI_outcome_percent_y5 <- prop.table(table(train_OAI_DF$knee_esKOA_new_y5_left)) * 100
+print(table(train_OAI_DF$knee_esKOA_new_y5_left))
 print(train_OAI_outcome_percent_y5)
 
 # Percentage and number of outcome Y5 in internal test dataset
-test_OAI_outcome_percent_y5 <- prop.table(table(test_OAI_DF$knee_esKOA_new_y5_right)) * 100
-print(table(test_OAI_DF$knee_esKOA_new_y5_right))
+test_OAI_outcome_percent_y5 <- prop.table(table(test_OAI_DF$knee_esKOA_new_y5_left)) * 100
+print(table(test_OAI_DF$knee_esKOA_new_y5_left))
 print(test_OAI_outcome_percent_y5)
 
 
@@ -426,13 +425,13 @@ cat("Number of rows in MOST after removing missing features:", test_MOST_DF_coun
 
 
 # Percentage and number of outcome Y2 in external test dataset (MOST)
-test_MOST_outcome_percent_y2 <- prop.table(table(test_MOST_DF$knee_esKOA_new_y2_right)) * 100
-print(table(test_MOST_DF$knee_esKOA_new_y2_right))
+test_MOST_outcome_percent_y2 <- prop.table(table(test_MOST_DF$knee_esKOA_new_y2_left)) * 100
+print(table(test_MOST_DF$knee_esKOA_new_y2_left))
 print(test_MOST_outcome_percent_y2)
 
 # Percentage and number of outcome Y5 in external test dataset (MOST)
-test_MOST_outcome_percent_y5 <- prop.table(table(test_MOST_DF$knee_esKOA_new_y5_right)) * 100
-print(table(test_MOST_DF$knee_esKOA_new_y5_right))
+test_MOST_outcome_percent_y5 <- prop.table(table(test_MOST_DF$knee_esKOA_new_y5_left)) * 100
+print(table(test_MOST_DF$knee_esKOA_new_y5_left))
 print(test_MOST_outcome_percent_y5)
 
 
@@ -571,7 +570,7 @@ colnames(continuous_combined) <- c("Study", "Variable", "Level/Statistic", "Valu
 summary_combined <- rbind(category_combined, continuous_combined)
 
 # Save the combined summary to CSV
-paper_path <- "XXXXX"
+paper_path <- "YYYYY"
 write.csv(summary_combined, file = paste(paper_path, "Table_1_characteristics.csv"), row.names = FALSE, fileEncoding = "UTF-8")
 
 
@@ -597,7 +596,7 @@ test_MOST_DF_orig <- test_MOST_DF
 data_path <- "YYYYY"
 tool_path <- "ZZZZZ"
 
-# Loop over each outcome (remember outcomeNames <- c('knee_esKOA_new_y2_right', 'knee_esKOA_new_y5_right'))
+# Loop over each outcome (remember outcomeNames <- c('knee_esKOA_new_y2_left', 'knee_esKOA_new_y5_left'))
 for (outcomes in outcomeNames) {
   file_conn <- file(paste(data_path, "output.txt", sep = ""), "a")
   cat(paste("Start of the analysis for the outcome: ", outcomes, "\n"), file = file_conn)
@@ -611,22 +610,22 @@ for (outcomes in outcomeNames) {
   test_MOST_DF$knee_esKOA <- test_MOST_DF[,outcomes]
   
   #Remove the columns
-  train_OAI_DF$knee_esKOA_new_y2_right <- NULL
-  train_OAI_DF$knee_esKOA_new_y5_right <- NULL
+  train_OAI_DF$knee_esKOA_new_y2_left <- NULL
+  train_OAI_DF$knee_esKOA_new_y5_left <- NULL
   
-  test_OAI_DF$knee_esKOA_new_y2_right <- NULL
-  test_OAI_DF$knee_esKOA_new_y5_right <- NULL 
+  test_OAI_DF$knee_esKOA_new_y2_left <- NULL
+  test_OAI_DF$knee_esKOA_new_y5_left <- NULL 
 
-  test_MOST_DF$knee_esKOA_new_y2_right <- NULL
-  test_MOST_DF$knee_esKOA_new_y5_right <- NULL 
+  test_MOST_DF$knee_esKOA_new_y2_left <- NULL
+  test_MOST_DF$knee_esKOA_new_y5_left <- NULL 
   
   
 
 #
   # Determine the set seed based on the outcome
-  if (outcomes == "knee_esKOA_new_y2_right") {
+  if (outcomes == "knee_esKOA_new_y2_left") {
     set.seed(5702)
-  } else if (outcomes == "knee_esKOA_new_y5_right") {
+  } else if (outcomes == "knee_esKOA_new_y5_left") {
     set.seed(5703)
   }
   
@@ -666,10 +665,10 @@ xgb_orig <- train(
 
 importance_df <- varImp(xgb_orig, scale = FALSE)$importance
 
-if (outcomes == "knee_esKOA_new_y2_right") {
-  write.csv(importance_df, "feature_importances_xgb_orig_y2_right.csv", row.names = TRUE)
-} else if (outcomes == "knee_esKOA_new_y5_right") {
-  write.csv(importance_df, "feature_importances_xgb_orig_y5_right.csv", row.names = TRUE)
+if (outcomes == "knee_esKOA_new_y2_left") {
+  write.csv(importance_df, "feature_importances_xgb_orig_y2_left.csv", row.names = TRUE)
+} else if (outcomes == "knee_esKOA_new_y5_left") {
+  write.csv(importance_df, "feature_importances_xgb_orig_y5_left.csv", row.names = TRUE)
 }
 
 # Extract the maximum ROC value and its index
@@ -740,9 +739,9 @@ ctrl <- trainControl(
 
 
 # Determine the set seed based on the outcome
-if (outcomes == "knee_esKOA_new_y2_right") {
+if (outcomes == "knee_esKOA_new_y2_left") {
   set.seed(5704)
-} else if (outcomes == "knee_esKOA_new_y5_right") {
+} else if (outcomes == "knee_esKOA_new_y5_left") {
   set.seed(5705)
 }
 
@@ -761,10 +760,10 @@ xgb_tuned <- train(
 
 importance_df2 <- varImp(xgb_tuned, scale = FALSE)$importance
 
-if (outcomes == "knee_esKOA_new_y2_right") {
-  write.csv(importance_df2, "feature_importances_xgb_tuned_y2_right.csv", row.names = TRUE)
-} else if (outcomes == "knee_esKOA_new_y5_right") {
-  write.csv(importance_df2, "feature_importances_xgb_tuned_y5_right.csv", row.names = TRUE)
+if (outcomes == "knee_esKOA_new_y2_left") {
+  write.csv(importance_df2, "feature_importances_xgb_tuned_y2_left.csv", row.names = TRUE)
+} else if (outcomes == "knee_esKOA_new_y5_left") {
+  write.csv(importance_df2, "feature_importances_xgb_tuned_y5_left.csv", row.names = TRUE)
 }
 
 
@@ -867,10 +866,10 @@ if (auc_tuned > auc) {
    
 }
 
-if (outcomes == "knee_esKOA_new_y2_right") {
+if (outcomes == "knee_esKOA_new_y2_left") {
   saveRDS(xgb_orig, file.path(tool_path, "xgb_orig_y2_model.rds"))
   
-} else if (outcomes == "knee_esKOA_new_y5_right") {
+} else if (outcomes == "knee_esKOA_new_y5_left") {
   saveRDS(xgb_orig, file.path(tool_path, "xgb_orig_y5_model.rds"))
 }
 
@@ -1096,9 +1095,9 @@ cat(paste(text_to_write, "\n\n"), file = file_conn)
 # A. XGB_ORIG FOR INTERNAL TEST DATA (OAI)
 
 # Determine the file path based on the outcome
-if (outcomes == "knee_esKOA_new_y2_right") {
+if (outcomes == "knee_esKOA_new_y2_left") {
   pdf_file_xgb_orig <- "roc_curve_plot_xgb_orig_INT_TEST_OAI_y2.pdf"
-} else if (outcomes == "knee_esKOA_new_y5_right") {
+} else if (outcomes == "knee_esKOA_new_y5_left") {
   pdf_file_xgb_orig <- "roc_curve_plot_xgb_orig_INT_TEST_OAI_y5.pdf"
 }
 
@@ -1116,10 +1115,6 @@ roc_values
 roc_data <- data.frame(Sensitivity = roc_values$sensitivities,
                        Specificity = 1 - roc_values$specificities)
 
-# Plot the ROC curve
-#plot(roc_data$Specificity, roc_data$Sensitivity, type = "l",
-#     main = "ROC Curve", xlab = "False Positive Rate (1 - Specificity)",
-#     ylab = "True Positive Rate (Sensitivity)")
 
 # Plot the ROC curve
 plot(roc_data$Specificity, roc_data$Sensitivity, type = "l",
@@ -1180,8 +1175,6 @@ text(selected_fpr + 0.1, selected_tpr,
 
 
 #########
-# Add point for the selected TPR and FPR on the ROC curve
-
 
 cat("roc_data_optimal$Sensitivity: ", roc_data_optimal$Sensitivity, "\n\n", file = file_conn)
 cat("roc_data_optimal$Specificity: ", roc_data_optimal$Specificity, "\n\n", file = file_conn)
@@ -1204,10 +1197,6 @@ legend_text <- c(
 legend("bottomright", legend = legend_text,
        lty = c(0, 0), col = "black", bty = "n", cex = 1.2)
 
-#legend_text <- paste("AUC: ", auc_value, " (", round(ci[1], 3), " to ", round(ci[3], 3), ")", sep = "")
-
-#legend("bottomright", legend = legend_text,
-#        lty = 1, col = "black", bty = "n", cex = 1.2)
 
 # Close the PDF device and save the plot
 dev.off()
@@ -1300,9 +1289,9 @@ cat(paste("Upper bound: ", ci_tuned[3], "\n"), file = file_conn)
 # Let's draw the ROC curve
 
 # Determine the file path based on the outcome
-if (outcomes == "knee_esKOA_new_y2_right") {
+if (outcomes == "knee_esKOA_new_y2_left") {
   pdf_file_xgb_orig_OAI_opt <- "roc_curve_plot_xgb_orig_INT_TEST_OAI_opt_y2.pdf"
-} else if (outcomes == "knee_esKOA_new_y5_right") {
+} else if (outcomes == "knee_esKOA_new_y5_left") {
   pdf_file_xgb_orig_OAI_opt <- "roc_curve_plot_xgb_orig_INT_TEST_OAI_opt_y5.pdf"
 }
 
@@ -1334,12 +1323,6 @@ plot(roc_data$Specificity, roc_data$Sensitivity, type = "l",
 # Add a diagonal line representing random classifier (AUC = 0.500)
 abline(0, 1, col = "gray", lty = 2)
 
-
-# Calculate the Youden's index
-#youden_index <- roc_values$sensitivities + roc_values$specificities - 1
-
-# Find the optimal threshold based on the maximum Youden's index
-#optimal_threshold <- roc_values$thresholds[which.max(youden_index)]
 
 # Retrieve the TPR and FPR at the optimal threshold
 selected_tpr <- roc_values$sensitivities[roc_values$thresholds == selected_threshold]
@@ -1507,9 +1490,9 @@ cat(paste("Upper bound: ", ci_tuned[3], "\n"), file = file_conn)
 
 
 # Determine the file path based on the outcome
-if (outcomes == "knee_esKOA_new_y2_right") {
+if (outcomes == "knee_esKOA_new_y2_left") {
   pdf_file_xgb_orig_MOST <- "roc_curve_plot_xgb_orig_MOST_y2.pdf"
-} else if (outcomes == "knee_esKOA_new_y5_right") {
+} else if (outcomes == "knee_esKOA_new_y5_left") {
   pdf_file_xgb_orig_MOST <- "roc_curve_plot_xgb_orig_MOST_y5.pdf"
 }
 
@@ -1528,6 +1511,10 @@ roc_values
 roc_data <- data.frame(Sensitivity = roc_values$sensitivities,
                        Specificity = 1 - roc_values$specificities)
 
+# Plot the ROC curve
+#plot(roc_data$Specificity, roc_data$Sensitivity, type = "l",
+#     main = "ROC Curve", xlab = "False Positive Rate (1 - Specificity)",
+#     ylab = "True Positive Rate (Sensitivity)")
 
 # Plot the ROC curve
 plot(roc_data$Specificity, roc_data$Sensitivity, type = "l",
@@ -1695,9 +1682,9 @@ cat(paste("Upper bound: ", ci_tuned[3], "\n"), file = file_conn)
 # Let's draw the ROC curve
 
 # Determine the file path based on the outcome
-if (outcomes == "knee_esKOA_new_y2_right") {
+if (outcomes == "knee_esKOA_new_y2_left") {
   pdf_file_xgb_orig_MOST_opt <- "roc_curve_plot_xgb_orig_MOST_opt_y2.pdf"
-} else if (outcomes == "knee_esKOA_new_y5_right") {
+} else if (outcomes == "knee_esKOA_new_y5_left") {
   pdf_file_xgb_orig_MOST_opt <- "roc_curve_plot_xgb_orig_MOST_opt_y5.pdf"
 }
 
@@ -1717,12 +1704,18 @@ roc_data <- data.frame(Sensitivity = roc_values$sensitivities,
                        Specificity = 1 - roc_values$specificities)
 
 # Plot the ROC curve
+#plot(roc_data$Specificity, roc_data$Sensitivity, type = "l",
+#     main = "ROC Curve", xlab = "False Positive Rate (1 - Specificity)",
+#     ylab = "True Positive Rate (Sensitivity)")
+
+# Plot the ROC curve
 plot(roc_data$Specificity, roc_data$Sensitivity, type = "l",
      main = "ROC Curve", xlab = "False Positive Rate (1 - Specificity)",
      ylab = "True Positive Rate (Sensitivity)", xlim = c(0, 1), ylim = c(0, 1))
 
 # Add a diagonal line representing random classifier (AUC = 0.500)
 abline(0, 1, col = "gray", lty = 2)
+
 
 
 # Retrieve the TPR and FPR at the selected threshold (0.5)
@@ -1748,6 +1741,7 @@ roc_optimal <- roc(test_MOST_DF[, outcomeName], pred_prob_optimal)
 # Create a data frame with sensitivity and specificity values for the optimal roc
 roc_data_optimal <- data.frame(Sensitivity = roc_optimal$sensitivities,
                                Specificity = 1 - roc_optimal$specificities)
+
 
 
 # Define a tolerance level for matching, if needed
@@ -1776,6 +1770,8 @@ if (closest_specificity_index == closest_sensitivity_index) {
     print("No suitable match found within the tolerance level.")
   }
 }
+
+
 
 #Add point for the selected TPR and FPR on the ROC curve
 text(selected_fpr + 0.10, selected_tpr - 0.10, 
@@ -1806,10 +1802,6 @@ legend_text <- c(
 legend("bottomright", legend = legend_text,
        lty = c(0, 0), col = "black", bty = "n", cex = 1.2)
 
-
-#legend_text <- paste("AUC: ", auc_value, " (", round(ci[1], 3), " to ", round(ci[3], 3), ")", sep = "")
-#legend("bottomright", legend = legend_text,
-#       lty = 1, col = "black", bty = "n", cex = 1.2)
 
 # Close the PDF device and save the plot
 dev.off()
